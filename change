@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -euo pipefail
+
+amount=$(printf "\n" | dmenu -p "Enter here the amount you want to see the convertion of: ")
+convertionStartPoint=$(cat ~/.local/bin/currencies-list.txt | dmenu -i -l 20 -p "Enter here the currency you want to convert from" | sed -e 's/[0-9]*//g' -e 's/.*(\(.*\))/\1/')
+convertionDesination=$(cat ~/.local/bin/currencies-list.txt | dmenu -i -l 20 -p "Enter here the currency you want to convert to" | sed -e 's/[0-9]*//g' -e 's/.*(\(.*\))/\1/')
+conversationResult=$(currency_converter $amount $convertionStartPoint -t $convertionDesination | awk '{print $4,$5}')
+echo $conversationResult | dmenu -p "$amount $convertionStartPoint in $convertionDesination is: "
+[ "$conversationResult" ] && echo $conversationResult | awk '{print $1}' | xclip -r -sel c && notify-send "$conversationResult copied"
+[ -z "$conversationResult" ] && exit 0
